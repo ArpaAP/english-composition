@@ -2,12 +2,21 @@ import json
 import random
 from difflib import SequenceMatcher
 
+#################
+# CONFIGURATIONS
+#################
+
+EXCEPTIONS = []
+WITH_HINT = True
+
+#################
+
 with open('./data/2024_suneungttkgang.json', 'r', encoding='utf-8') as f:
     SENTENCES: list = json.load(f)['sentences']
 
-print("""==============================
+print("""=======================================
 ENGLISH COMPOSITION MEMORIZATION HELPER
-==============================
+=======================================
 """)
 
 menu = ''
@@ -38,8 +47,17 @@ else:
     print('\n', "=" * 20, '\n', sep='')
 
     for i, one in enumerate(sentences, start):
+        if i in EXCEPTIONS:
+            continue
+
         print(f'문제 {i}/{len(SENTENCES)}.\n\n')
         print(one['interpretation'], '\n')
+
+        if WITH_HINT:
+            words = one['content'].split()
+            random.shuffle(words)
+
+            print('[', ' / '.join(words), ']', '\n')
 
         ipt = input('> ')
 
@@ -50,7 +68,7 @@ else:
             print('패스하고 넘어갑니다.')
             print(f"정답: {one['content']}")
 
-        elif ipt == one['content']:
+        elif ipt.lower() == one['content'].lower():
             perfect += 1
             similarities.append(1)
 
@@ -68,9 +86,9 @@ else:
             print(f'유사도: {round(sim.ratio() * 100, 3)}%')
 
 
-        print(f'평균 유사도: {round(sum(similarities) / len(similarities) * 100, 3)}%')
+        print('평균 유사도: {}%'.format(round(sum(similarities) / len(similarities) * 100, 3) if len(similarities) else 0))
         print('\n', "=" * 20, '\n', sep='')
 
     print(f'정확: {perfect}, 틀림: {incorrect}, 건너뜀: {skip}')
-    print(f'최종 정확도: {round(sum(similarities) / len(similarities) * 100, 3)}')
+    print('최종 정확도: {}'.format(round(sum(similarities) / len(similarities) * 100, 3) if len(similarities) else 0))
 
